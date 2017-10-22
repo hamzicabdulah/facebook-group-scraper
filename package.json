@@ -1,0 +1,17 @@
+{
+  "name": "fb-group-downloader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chilkat_node6_win32": "^9.50.69",
+    "nightmare": "^2.10.0",
+    "request": "^2.83.0",
+    "url-download": "0.0.8"
+  }
+}
