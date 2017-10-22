@@ -24,9 +24,4 @@ To install all package dependencies:
 Please install the appropriate chilkat package for your system manually, by running:
 `npm install <chilkat package name>`
 
-Chilkat packages by OS:
-* Windows x86: chilkat_node6_win32
-* Linux arm: chilkat_node6_arm
-* Linux x64: chilkat_node6_linux64
-* Linux x86: chilkat_node6_linux32
-* Mac: chilkat_node6_macosx
+You can see the available Chilkat packages [here](https://www.npmjs.com/~chilkat). 
