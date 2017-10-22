@@ -1,6 +1,6 @@
 const Nightmare = require('nightmare');
 const nightmare = Nightmare({
-    show: true,
+    show: false,
     waitTimeout: 5000
 });
 const os = require('os');
