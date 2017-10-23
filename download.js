@@ -140,7 +140,6 @@ function download(url, cb) {
 
 function loadFullPage(cb) {
     // Keep loading more files, until all are loaded
-    // This function currently doesn't work as intended, so program only works for groups with small number of files
     return nightmare.exists('#group_files_pager_' + groupId + ' .uiMorePager')
         .then(moreToLoad => {
             if (moreToLoad) {
