@@ -1,6 +1,6 @@
 ## Synopsis
 
-Command line program that downloads all the files or photos of a Facebook group. Still in development, and currently works only for downloading group files (**doesn't work for images**), and it only works for groups with a small number of files.
+Command line program that downloads all the files or photos of a Facebook group. Still in development, and currently works only for downloading group files (**doesn't work for images**). This program assumes that you have NPM and Node.js installed on your system. This program makes use of the following npm packages: Nightmare.js, Chilkat.
 
 ## Command Usage Format
 
@@ -21,7 +21,7 @@ To download all group photos:
 To install all package dependencies:
 `npm install`
 
-Please install the appropriate chilkat package for your system manually, by running:
+Please install the appropriate chilkat package based on your system and Node version manually, by running:
 `npm install <chilkat package name>`
 
 You can see the available Chilkat packages [here](https://www.npmjs.com/~chilkat). 
