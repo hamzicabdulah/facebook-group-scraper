@@ -9,9 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "chilkat_node6_win32": "^9.50.69",
-    "nightmare": "^2.10.0",
-    "request": "^2.83.0",
-    "url-download": "0.0.8"
+    "nightmare": "^2.10.0"
   }
 }
