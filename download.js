@@ -1,7 +1,7 @@
 const Nightmare = require('nightmare');
 const nightmare = Nightmare({
-    show: false,
-    waitTimeout: 5000
+    show: true,
+    waitTimeout: 10000
 });
 const fs = require('fs');
 const os = require('os');
@@ -72,7 +72,7 @@ nightmare.goto('https://facebook.com')
     .click('[value="Log In"]')
     .wait(1000)
     .goto(group + '/' + type)
-    .wait('._42ft')
+    .wait('._2yaa')
     .then(() => {
         loadFullPage(() => {
             nightmare.on('console', (log, msg) => {
