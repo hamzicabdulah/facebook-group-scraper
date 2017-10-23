@@ -3,8 +3,8 @@ const nightmare = Nightmare({
     show: false,
     waitTimeout: 5000
 });
-const os = require('os');
 const fs = require('fs');
+const os = require('os');
 
 // There are different chilkat packages for different operating systems
 if (os.platform() == 'win32') {
@@ -43,16 +43,15 @@ if (type === 'photos') {
     process.exit(1);
 }
 
-if (group[group.length - 1] === '/') {
+if (group.indexOf(type) >= 0) {
+    // In case the user provides the url for the files/photos page instead of the group main page
+    group = group.split('/' + type)[0];
+} else if (group[group.length - 1] === '/') {
     // If last character of url is "/", remove it
     group = group.slice(0, -1);
 }
 
 let groupId = group.split('groups/')[1];
-if (groupId.indexOf(type) >= 0) {
-    // In case the user provides the url for the files page instead of the group main page
-    groupId = groupId.split('/' + type)[0]
-}
 
 if (!fs.existsSync('groups/')) {
     fs.mkdirSync('groups/');
@@ -74,44 +73,33 @@ nightmare.goto('https://facebook.com')
     .wait(1000)
     .goto(group + '/' + type)
     .wait('._42ft')
-    .on('console', (log, msg) => {
-        console.log(msg)
-    })
-    .evaluate((groupId) => {
-        return loadFullPage(groupId, () => {
-            // Click on all options button elements for all files, in order for download buttons to show up in the dom
-            document.querySelectorAll('.sx_f2319c').forEach(btn => {
-                btn.click();
+    .then(() => {
+        loadFullPage(() => {
+            nightmare.on('console', (log, msg) => {
+                console.log(msg)
+            }).evaluate(() => {
+                // Click on all options button elements for all files, in order for download buttons to show up in the dom
+                document.querySelectorAll('.sx_f2319c').forEach(btn => {
+                    btn.click();
+                });
+                let urls = [];
+                document.querySelectorAll('._54nc').forEach((link, index) => {
+                    // Collect urls of all files to be downloaded
+                    let url = link.href;
+                    if (url.indexOf('lookaside') >= 0) urls.push(url);
+                });
+                return urls;
+            }).then(urls => {
+                downloadAll(urls, 0, reply => {
+                    console.log(reply);
+                    nightmare.end();
+                    process.exit(1);
+                });
+            }).catch(() => {
+                console.log('Something went wrong. The download links couldn\'t be parsed. Please try again.');
+                nightmare.end();
+                process.exit(1);
             });
-            let urls = [];
-            document.querySelectorAll('._54nc').forEach((link, index) => {
-                // Collect urls of all files to be downloaded
-                if (index % 2 === 0) urls.push(link.href);
-            });
-            return urls;
-        });
-
-        function loadFullPage(groupId, cb) {
-            // Keep loading more files, until all are loaded
-            // This function currently doesn't work as intended, so program only works for groups with small number of files
-            let moreToLoad = document.querySelector('#group_files_pager_' + groupId + ' .uiMorePager');
-            let loadMoreBtn = document.querySelector('a.uiMorePagerPrimary');
-
-            if (moreToLoad) {
-                loadMoreBtn.click();
-                setTimeout(() => {
-                    return loadFullPage(groupId, cb);
-                }, 1000);
-            } else {
-                return cb();
-            }
-        }
-    }, groupId)
-    .then(urls => {
-        downloadAll(urls, 0, reply => {
-            console.log(reply);
-            nightmare.end();
-            process.exit(1);
         });
     })
     .catch(() => {
@@ -132,20 +120,47 @@ function downloadAll(urls, index, cb) {
 
 function download(url, cb) {
     let fileName = decodeURI(url.split('file/')[1].split('?token')[0]);
+    let fileDest = 'groups/' + groupId + '/' + type + '/' + fileName;
     let success;
 
-    success = http.UnlockComponent(fileName); // You can enter anything to unlock component
+    success = http.UnlockComponent(fileName + email.split('@')[0]); // You can enter anything to unlock component
     if (success !== true) {
         console.log(http.LastErrorText);
         return cb('Download of ' + fileName + ' failed.');
     }
 
-    success = http.Download(url, 'groups/' + groupId + '/' + type + '/' + fileName);
+    success = http.Download(url, fileDest);
     if (success !== true) {
         console.log(http.LastErrorText);
         return cb('Download of ' + fileName + ' failed.');
     }
-
     // This should run only if the file is successfully downloaded
     return cb('Download of ' + fileName + ' completed successfully.');
+}
+
+function loadFullPage(cb) {
+    // Keep loading more files, until all are loaded
+    // This function currently doesn't work as intended, so program only works for groups with small number of files
+    return nightmare.exists('#group_files_pager_' + groupId + ' .uiMorePager')
+        .then(moreToLoad => {
+            if (moreToLoad) {
+                nightmare.click('a.uiMorePagerPrimary')
+                    .wait(1500)
+                    .then(() => {
+                        return loadFullPage(cb);
+                    })
+                    .catch(() => {
+                        console.log('Something went wrong. The page wasn\'t able to load all the files successfully. Please try again.');
+                        nightmare.end();
+                        process.exit(1);
+                    });
+            } else {
+                return cb();
+            }
+        })
+        .catch(() => {
+            console.log('Something went wrong. The page wasn\'t able to load all the files successfully. Please try again.');
+            nightmare.end();
+            process.exit(1);
+        });
 }
